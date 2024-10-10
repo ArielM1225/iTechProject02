@@ -8,6 +8,7 @@ from aplicaciones.Productos.models import Producto
 from django.utils.html import format_html
 
 class ProductosAdmin (admin.ModelAdmin):
+    exclude = ('stock', '')
     list_display=(
         'nombre_Comercial',
         'tipo_Producto',
@@ -56,6 +57,11 @@ class ProductosAdmin (admin.ModelAdmin):
 
     export_selected_to_pdf.short_description = "Exportar Movimientos seleccionados a PDF"
     actions = [export_selected_to_pdf]
+    
+    def get_readonly_fields(self, request, obj=None):
+        if obj:  # Si el objeto ya existe (es una instancia guardada)
+            return ['stock']
+        return []
      
 
 admin.site.register(Producto,ProductosAdmin)

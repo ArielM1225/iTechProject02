@@ -10,7 +10,7 @@ class Entrada(models.Model):
     id_Entrada = models.AutoField(primary_key=True, verbose_name='Código de movimiento')
     productos = models.ManyToManyField('Productos.Producto', through='EntradaProducto')
     Remito = models.ImageField('Remito', null=True, blank=True)
-    id_Proveedor = models.ForeignKey('Comunidad.Proveedor', null=True, blank=True, on_delete=models.CASCADE, verbose_name='Proveedor')
+    id_Proveedor = models.ForeignKey('Comunidad.Proveedor', null=True, blank=True, on_delete=models.PROTECT, verbose_name='Proveedor')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Fecha')
 
     def __str__(self):
@@ -18,7 +18,7 @@ class Entrada(models.Model):
 
 class EntradaProducto(models.Model):
     entrada = models.ForeignKey(Entrada, on_delete=models.CASCADE, blank=True, null=True)
-    producto = models.ForeignKey('Productos.Producto', on_delete=models.CASCADE, blank=True, null=True)
+    producto = models.ForeignKey('Productos.Producto', on_delete=models.PROTECT, blank=True, null=True)
     fecha_Caducidad = models.DateField('Fecha de caducidad')
     cantidad = models.PositiveIntegerField()
 
@@ -33,9 +33,16 @@ def adjust_stock(sender, created, instance, **kwargs):
             instance.producto.stock += ordered_qty
             instance.producto.save()
             
-            HistorialMovimiento.objects.create(
-                producto=instance.producto,
+            historial, _ = HistorialMovimiento.objects.get_or_create(
+                entrada=instance.entrada,
                 tipo_movimiento='entrada',
+                defaults={'fecha_movimiento': instance.entrada.created_at}
+            )
+            
+            # Crea el detalle del historial
+            HistorialProductos.objects.create(
+                historial=historial,
+                producto=instance.producto,
                 cantidad=instance.cantidad
             )
 
@@ -44,7 +51,7 @@ class Salida(models.Model):
     productos = models.ManyToManyField('Productos.Producto', through='SalidaProducto')
     recetas = models.CharField ('Receta',max_length=100)
     duplicado = models.ImageField('Duplicado', null=True, blank=True)
-    id_Paciente = models.ForeignKey('Comunidad.Paciente', on_delete=models.CASCADE, verbose_name= 'Nombre del paciente')
+    id_Paciente = models.ForeignKey('Comunidad.Paciente', on_delete=models.PROTECT, verbose_name= 'Nombre del paciente')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Fecha')
     entregado = models.BooleanField('Entregado', default=False)
 
@@ -54,7 +61,7 @@ class Salida(models.Model):
 
 class SalidaProducto(models.Model):
     salida = models.ForeignKey(Salida, on_delete=models.CASCADE, blank=True, null=True)
-    producto = models.ForeignKey('Productos.Producto', on_delete=models.CASCADE, blank=True, null=True)
+    producto = models.ForeignKey('Productos.Producto', on_delete=models.PROTECT, blank=True, null=True)
     cantidad = models.PositiveIntegerField()
  
 @receiver(post_save, sender=SalidaProducto)
@@ -70,13 +77,20 @@ def adjust_stock(sender, created, instance, **kwargs):
                 instance.producto.stock -= ordered_qty
                 instance.producto.save()
                 
-                HistorialMovimiento.objects.create(
-                    producto=instance.producto,
-                    tipo_movimiento='salida',
-                    cantidad=instance.cantidad
-                )
+                historial, _ = HistorialMovimiento.objects.get_or_create(
+                salida=instance.salida,
+                tipo_movimiento='salida',
+                defaults={'fecha_movimiento': instance.entrada.created_at}
+            )
+            
+            # Crea el detalle del historial
+            HistorialProductos.objects.create(
+                historial=historial,
+                producto=instance.producto,
+                cantidad=instance.cantidad
+            )
                 
-            else:
+        else:
                 raise ValidationError(f'No hay suficiente stock disponible para el producto {instance.producto.nombre_Comercial}. Stock actual: {stocked_qty}')
             
             
@@ -104,7 +118,7 @@ class AjusteProducto(models.Model):
     
     tipo_mov = models.CharField('Tipo de Movimiento', max_length=20, choices=TIPO_MOV_CHOICES)
     ajuste = models.ForeignKey(AjusteStock, on_delete=models.CASCADE, blank=True, null=True)
-    producto = models.ForeignKey('Productos.Producto', on_delete=models.CASCADE, blank=True, null=True)
+    producto = models.ForeignKey('Productos.Producto', on_delete=models.PROTECT, blank=True, null=True)
     cantidad = models.PositiveIntegerField()
     
     def __str__(self):
@@ -126,16 +140,22 @@ def ajustar_stock(sender, created, instance, **kwargs):
             if producto.stock < cantidad:
                 raise ValidationError(f'Stock insuficiente para el producto {producto.nombre_Comercial}. Stock actual: {producto.stock}')
             producto.stock -= cantidad
-            tipo_movimiento = 'ajuste de'
+            tipo_movimiento = 'ajuste de salida'
 
         producto.save()
         
-        HistorialMovimiento.objects.create(
-            producto=producto,
-            tipo_movimiento=tipo_movimiento,
-            cantidad=cantidad,
-            motivo=instance.ajuste.motivo  # Puedes registrar el motivo si lo hay
-        )
+        historial, _ = HistorialMovimiento.objects.get_or_create(
+                ajuste=instance.ajuste,
+                tipo_movimiento=tipo_movimiento,
+                defaults={'fecha_movimiento': instance.entrada.created_at}
+            )
+            
+            # Crea el detalle del historial
+        HistorialProductos.objects.create(
+                historial=historial,
+                producto=instance.producto,
+                cantidad=instance.cantidad
+            )
         
         
 class HistorialMovimiento(models.Model):
@@ -145,15 +165,24 @@ class HistorialMovimiento(models.Model):
         ('ajuste de entrada', 'Ajuste de entrada'),
         ('ajuste de salida', 'Ajuste de salida')
     )
-    
-    producto = models.ForeignKey('Productos.Producto', on_delete=models.CASCADE)
+    id_historial = models.AutoField(primary_key=True, verbose_name='Código de movimiento')
     tipo_movimiento = models.CharField(max_length=20, choices=TIPO_MOVIMIENTO_CHOICES)
-    cantidad = models.PositiveIntegerField()
     fecha_movimiento = models.DateTimeField(auto_now_add=True)
     motivo = models.CharField(max_length=150, blank=True, null=True)  # Para registrar el motivo en caso de ajuste
+    entrada = models.ForeignKey('Entrada', on_delete=models.SET_NULL, null=True, blank=True)
+    salida = models.ForeignKey('Salida', on_delete=models.SET_NULL, null=True, blank=True)
+    ajuste = models.ForeignKey('AjusteStock', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return f'Movimiento: {self.tipo_movimiento} - Producto: {self.producto} - Cantidad: {self.cantidad}'
+        return f'Movimiento: {self.tipo_movimiento}'
+    
+class HistorialProductos(models.Model):
+        producto = models.ForeignKey('Productos.Producto', on_delete=models.PROTECT)
+        cantidad = models.PositiveIntegerField()
+        historial = models.ForeignKey(HistorialMovimiento, on_delete=models.CASCADE)
+        class Meta:
+            verbose_name = 'Detalle de productos'
+            verbose_name_plural = 'Detalle de productos'
     
     
     

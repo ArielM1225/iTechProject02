@@ -1,10 +1,17 @@
 from django.contrib import admin
 from django.http import HttpRequest
-from aplicaciones.Movimientos.models import Entrada, Salida, SalidaProducto, EntradaProducto, AjusteProducto,AjusteStock, HistorialMovimiento
+from aplicaciones.Movimientos.models import Entrada, Salida, SalidaProducto, EntradaProducto, AjusteProducto,AjusteStock, HistorialMovimiento,HistorialProductos
 
 class EntradaProductoInline(admin.TabularInline):
     model = EntradaProducto
     extra = 1
+    def get_readonly_fields(self, request, obj=None):
+        if obj:  # Si el objeto ya existe (es una instancia guardada)
+            return ['producto', 'cantidad', 'fecha_Caducidad']
+        return []
+    def has_delete_permission(self, request, obj=None):
+        # Desactivar la opción de eliminar
+        return False
     
 
 class SalidaProductoInline(admin.TabularInline):
@@ -16,6 +23,9 @@ class SalidaProductoInline(admin.TabularInline):
         if obj:  # Si el objeto ya existe (es una instancia guardada)
             return ['producto', 'cantidad']
         return []
+    def has_delete_permission(self, request, obj=None):
+        # Desactivar la opción de eliminar
+        return False
     
     
 class EntradaAdmin (admin.ModelAdmin):
@@ -25,6 +35,17 @@ class EntradaAdmin (admin.ModelAdmin):
         'id_Entrada',
         'created_at',
         )
+    list_filter = ('id_Proveedor', 'created_at')
+    
+    def has_delete_permission(self, request, obj=None):
+        # Desactivar la opción de eliminar
+        return False
+    def get_readonly_fields(self, request, obj=None):
+        # Si el objeto ya existe (es una edición), solo permitimos editar el campo 'entregado'
+        if obj:
+            return ['id_Proveedor']  # Otros campos como solo lectura
+        else:
+            return []
    
     
 class SalidaAdmin(admin.ModelAdmin):
@@ -49,6 +70,14 @@ class SalidaAdmin(admin.ModelAdmin):
 class AjusteProductoInline(admin.TabularInline):
     model = AjusteProducto
     extra = 1  # Número de formularios adicionales vacíos
+    def get_readonly_fields(self, request, obj=None):
+        if obj:  # Si el objeto ya existe (es una instancia guardada)
+            return ['producto', 'cantidad', 'tipo_mov']
+        return []
+    def has_delete_permission(self, request, obj=None):
+        # Desactivar la opción de eliminar
+        return False
+    
 
 # Configuración del admin para AjusteStock
 class AjusteStockAdmin(admin.ModelAdmin):
@@ -56,14 +85,29 @@ class AjusteStockAdmin(admin.ModelAdmin):
     list_display = (
         'id_ajuste',
         'motivo',
-        'created_at',
+        'created_at'
     )
     search_fields = ['id_ajuste', 'motivo']  # Campos para búsqueda
     list_filter = ['created_at']  # Filtro por fecha de creación
+    def has_delete_permission(self, request, obj=None):
+        # Desactivar la opción de eliminar
+        return False
     
+    
+class HistorialProductosInline(admin.TabularInline):
+    model = HistorialProductos
+    extra = 1  # Número de formularios adicionales vacíos
+    def get_readonly_fields(self, request, obj=None):
+        if obj:  # Si el objeto ya existe (es una instancia guardada)
+            return ['producto', 'cantidad']
+        return []
+    def has_delete_permission(self, request, obj=None):
+        # Desactivar la opción de eliminar
+        return False
     
 class HistorialMovimientoAdmin(admin.ModelAdmin):
-    list_display = ('producto', 'tipo_movimiento', 'cantidad', 'fecha_movimiento')
+    inlines = [HistorialProductosInline]
+    list_display = ('tipo_movimiento','fecha_movimiento', 'motivo')
     list_filter = ('tipo_movimiento', 'fecha_movimiento')
     search_fields = ('producto__nombre_Comercial', 'motivo')
     date_hierarchy = 'fecha_movimiento'
@@ -76,11 +120,33 @@ class HistorialMovimientoAdmin(admin.ModelAdmin):
         return False
     
     def get_readonly_fields(self, request, obj=None):
-        # Si el objeto ya existe (es una edición), solo permitimos editar el campo 'entregado'
+        # Campos que serán de solo lectura si el objeto ya existe
         if obj:
-            return ['producto', 'tipo_movimiento', 'cantidad', 'fecha_movimiento', 'motivo']  # Otros campos como solo lectura
-        else:
-            return []
+            readonly_fields = ['tipo_movimiento', 'fecha_movimiento', 'motivo']
+            # Agregar entrada, salida y ajuste si no son None
+            if obj.entrada is not None:
+                readonly_fields.append('entrada')
+            if obj.salida is not None:
+                readonly_fields.append('salida')
+            if obj.ajuste is not None:
+                readonly_fields.append('ajuste')
+            return readonly_fields
+        return []
+    
+    def get_exclude(self, request, obj=None):
+        """
+        Excluye los campos solo si son null
+        """
+        if obj:  # Si el objeto existe
+            exclude_fields = []
+            if obj.entrada is None:
+                exclude_fields.append('entrada')
+            if obj.salida is None:
+                exclude_fields.append('salida')
+            if obj.ajuste is None:
+                exclude_fields.append('ajuste')
+            return exclude_fields
+        return []
     
     
     
