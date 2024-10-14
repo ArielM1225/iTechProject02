@@ -17,7 +17,7 @@ class Entrada(models.Model):
         return f'Número de entrada: {self.id_Entrada}'
 
 class EntradaProducto(models.Model):
-    entrada = models.ForeignKey(Entrada, on_delete=models.CASCADE, blank=True, null=True)
+    entrada = models.ForeignKey(Entrada, on_delete=models.PROTECT, blank=True, null=True)
     producto = models.ForeignKey('Productos.Producto', on_delete=models.PROTECT, blank=True, null=True)
     fecha_Caducidad = models.DateField('Fecha de caducidad')
     cantidad = models.PositiveIntegerField()
@@ -60,7 +60,7 @@ class Salida(models.Model):
         return f'Número de salida: {self.id_Salida}'
 
 class SalidaProducto(models.Model):
-    salida = models.ForeignKey(Salida, on_delete=models.CASCADE, blank=True, null=True)
+    salida = models.ForeignKey(Salida, on_delete=models.PROTECT, blank=True, null=True)
     producto = models.ForeignKey('Productos.Producto', on_delete=models.PROTECT, blank=True, null=True)
     cantidad = models.PositiveIntegerField()
  
@@ -117,7 +117,7 @@ class AjusteProducto(models.Model):
     )
     
     tipo_mov = models.CharField('Tipo de Movimiento', max_length=20, choices=TIPO_MOV_CHOICES)
-    ajuste = models.ForeignKey(AjusteStock, on_delete=models.CASCADE, blank=True, null=True)
+    ajuste = models.ForeignKey(AjusteStock, on_delete=models.PROTECT, blank=True, null=True)
     producto = models.ForeignKey('Productos.Producto', on_delete=models.PROTECT, blank=True, null=True)
     cantidad = models.PositiveIntegerField()
     
@@ -179,7 +179,7 @@ class HistorialMovimiento(models.Model):
 class HistorialProductos(models.Model):
         producto = models.ForeignKey('Productos.Producto', on_delete=models.PROTECT)
         cantidad = models.PositiveIntegerField()
-        historial = models.ForeignKey(HistorialMovimiento, on_delete=models.CASCADE)
+        historial = models.ForeignKey(HistorialMovimiento, on_delete=models.PROTECT)
         class Meta:
             verbose_name = 'Detalle de productos'
             verbose_name_plural = 'Detalle de productos'

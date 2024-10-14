@@ -15,7 +15,7 @@ class Empleado(AbstractUser):
     dni = models.IntegerField('Dni', unique=True, null=True, blank=True)
     trabajo = models.CharField('Puesto', max_length=20, choices=JOB_CHOICES)
     nacimiento = models.DateField('Nacimiento', default=date.today)
-    id_Contacto = models.ForeignKey('Comunidad.contacto', null=True, blank=True, on_delete=models.CASCADE)
+    id_Contacto = models.ForeignKey('Comunidad.contacto', null=True, blank=True, on_delete=models.PROTECT)
     
     class Meta:
         verbose_name = 'Empleado'
@@ -41,7 +41,7 @@ class Paciente (models.Model):
     nombre= models.CharField ('Nombre',max_length=17)   
     apellido = models.CharField ('Apellido',max_length=50)
     dni= models.IntegerField ('Dni')
-    id_Contacto = models.ForeignKey('Comunidad.contacto', on_delete=models.CASCADE, verbose_name= 'Información de contacto')
+    id_Contacto = models.ForeignKey('Comunidad.contacto', on_delete=models.PROTECT, verbose_name= 'Información de contacto')
     
     class Meta:
         verbose_name= 'Paciente'
@@ -66,7 +66,7 @@ class Proveedor (models.Model):
     id_Proveedor = models.AutoField(primary_key=True)
     nombre= models.CharField ('Nombre',max_length=17)   
     r_Social = models.CharField('Razón Social', max_length=50, choices=RAZON_SOCIAL_CHOICES)
-    id_Contacto = models.ForeignKey('Comunidad.contacto', on_delete=models.CASCADE, verbose_name= 'Información de contacto')
+    id_Contacto = models.ForeignKey('Comunidad.contacto', on_delete=models.PROTECT, verbose_name= 'Información de contacto')
     
     class Meta:
         verbose_name= 'Proveedor'
@@ -105,7 +105,7 @@ class contacto (models.Model):
     número=models.IntegerField ('Numero')
     piso=models.IntegerField ('N° Piso',null=True, blank=True)
     departamento=models.CharField ('Departamento',max_length=50,null=True, blank=True)
-    localidad=models.ForeignKey('Comunidad.localidad',null=True, on_delete=models.CASCADE)
+    localidad=models.ForeignKey('Comunidad.localidad',null=True, on_delete=models.PROTECT)
     código_Postal=models.IntegerField ('Codigo Postal',null=True)
 
 class provincia (models.Model):
@@ -117,7 +117,7 @@ class provincia (models.Model):
 class localidad (models.Model):
     id_Localidad=models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
-    Id_provincia= models.ForeignKey('Comunidad.provincia',null=True,blank=True, on_delete=models.CASCADE)
+    Id_provincia= models.ForeignKey('Comunidad.provincia',null=True,blank=True, on_delete=models.PROTECT)
     def __str__(self):
         return f"{self.nombre}, {self.Id_provincia.nombre if self.Id_provincia else 'Provincia no asignada'}"
 

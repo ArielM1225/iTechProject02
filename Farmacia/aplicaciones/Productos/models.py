@@ -24,7 +24,7 @@ class Producto (models.Model):
     
     id_producto= models.AutoField(primary_key=True)
     nombre_Comercial=models.CharField ('Nombre',max_length=50)
-    id_Laboratorio = models.ForeignKey('Comunidad.Laboratorio', on_delete=models.CASCADE, verbose_name= 'Laboratorio')
+    id_Laboratorio = models.ForeignKey('Comunidad.Laboratorio', on_delete=models.PROTECT, verbose_name= 'Laboratorio')
     principio_activo=models.CharField ('Droga',max_length=50)
     cantidad_droga = models.DecimalField(
         max_digits=10, 
