@@ -80,7 +80,7 @@ def adjust_stock(sender, created, instance, **kwargs):
                 historial, _ = HistorialMovimiento.objects.get_or_create(
                 salida=instance.salida,
                 tipo_movimiento='salida',
-                defaults={'fecha_movimiento': instance.entrada.created_at}
+                defaults={'fecha_movimiento': instance.salida.created_at}
             )
             
             # Crea el detalle del historial
@@ -147,7 +147,7 @@ def ajustar_stock(sender, created, instance, **kwargs):
         historial, _ = HistorialMovimiento.objects.get_or_create(
                 ajuste=instance.ajuste,
                 tipo_movimiento=tipo_movimiento,
-                defaults={'fecha_movimiento': instance.entrada.created_at}
+                defaults={'fecha_movimiento': instance.ajuste.created_at}
             )
             
             # Crea el detalle del historial

@@ -107,6 +107,8 @@ class contacto (models.Model):
     departamento=models.CharField ('Departamento',max_length=50,null=True, blank=True)
     localidad=models.ForeignKey('Comunidad.localidad',null=True, on_delete=models.PROTECT)
     código_Postal=models.IntegerField ('Codigo Postal',null=True)
+    def __str__(self):
+        return self.email + ' - ' + f"{self.numero_Telefono}"
 
 class provincia (models.Model):
     id_Provincia=models.AutoField(primary_key=True)
