@@ -19,7 +19,7 @@ class EmpleadoAdmin(admin.ModelAdmin):
         (None, {'fields': ('username', 'password')}),
         ('Información Personal', {'fields': ('first_name', 'last_name', 'email', 'dni', 'trabajo')}),
         ('Contacto', {'fields': ('id_Contacto',)}),
-        ('Permisos', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Permisos', {'fields': ('is_active', 'is_staff',)}),
         ('Fechas Importantes', {'fields': ('last_login', 'date_joined')}),
     )
 

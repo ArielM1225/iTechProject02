@@ -4,10 +4,17 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from aplicaciones.Productos.models import Producto
+from aplicaciones.Productos.models import Producto, Droga, DrogaProducto
 from django.utils.html import format_html
 
+
+    
+class DrogaProductoInline(admin.TabularInline):
+    model = DrogaProducto
+    extra = 1  # Número de formularios adicionales que se mostrarán
+
 class ProductosAdmin (admin.ModelAdmin):
+    inlines = [DrogaProductoInline]
     exclude = ('stock', '')
     list_display=(
         'nombre_Comercial',
@@ -22,6 +29,10 @@ class ProductosAdmin (admin.ModelAdmin):
         'tipo_Producto'
         
     ) 
+
+class DrogaAdmin(admin.ModelAdmin):
+    list_display = ('nombre',)
+    search_fields = ('nombre',)
     
     # def mostrar_stock(self, obj):
     #     return calcular_stock(obj.id_producto) 
@@ -65,4 +76,5 @@ class ProductosAdmin (admin.ModelAdmin):
      
 
 admin.site.register(Producto,ProductosAdmin)
+admin.site.register(Droga,DrogaAdmin)
 

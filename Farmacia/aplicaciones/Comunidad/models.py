@@ -1,6 +1,8 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
 from datetime import date
+from django.db.models.signals import pre_save, post_save
+from django.dispatch import receiver
 from django.contrib.auth.hashers import make_password
 
 
@@ -9,7 +11,7 @@ class Empleado(AbstractUser):
         ('auxiliar', 'Auxiliar'), 
         ('administrativo', 'Administrativo'),
         ('farmacéutico', 'Farmacéutico'),
-        ('médico', 'médico'),
+        ('médico', 'Médico'),
     )
 
     dni = models.IntegerField('Dni', unique=True, null=True, blank=True)
@@ -23,16 +25,38 @@ class Empleado(AbstractUser):
         unique_together = ('first_name', 'last_name', 'dni')
         constraints = [
             models.UniqueConstraint(fields=['email'], name='unique_email')
-        ]
-
-    def save(self, *args, **kwargs):
-        # Si la contraseña no está encriptada, la encriptamos antes de guardarla
-        if self.pk is None or 'pbkdf2_sha256$' not in self.password:
-            self.password = make_password(self.password)
-        super().save(*args, **kwargs)
-    
+        ]  
     def __str__(self):
         return f'{self.last_name} - {self.first_name}'
+    
+@receiver(post_save, sender=Empleado)
+def asignar_grupo_por_puesto(sender, instance, **kwargs):
+    """
+    Asigna el grupo de permisos al empleado basado en su puesto,
+    tanto en la creación como en la edición.
+    """
+    # Eliminar cualquier grupo previo
+    instance.groups.clear()
+
+    # Asignar grupo según el puesto
+    if instance.trabajo == 'auxiliar':
+        grupo = Group.objects.get(name='Auxiliar')
+    elif instance.trabajo == 'administrativo':
+        grupo = Group.objects.get(name='Administrativo')
+    elif instance.trabajo == 'farmacéutico':
+        grupo = Group.objects.get(name='Farmacéutico')
+    elif instance.trabajo == 'médico':
+        grupo = Group.objects.get(name='Médico')
+    else:
+        grupo = None
+    
+    if grupo:
+        instance.groups.add(grupo)
+    
+@receiver(pre_save, sender=Empleado)
+def encriptar_contrasena(sender, instance, **kwargs):
+    if instance.password and not instance.password.startswith('pbkdf2_sha256$'):
+        instance.password = make_password(instance.password)
     
     
 
