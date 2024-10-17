@@ -67,7 +67,8 @@ JAZZMIN_SETTINGS = {
         "Movimientos.Salida": "fas fa-chevron-circle-left",
         "Movimientos.AjusteStock": "fas fa-exchange-alt",
         "Movimientos.HistorialMovimiento": "fas fa-clock",
-        "Productos.Producto":"fas fa-pills",
+        "Productos.Producto":"fas fa-medkit",
+        "Productos.Droga": "fas fa-pills",
       
     },
 }

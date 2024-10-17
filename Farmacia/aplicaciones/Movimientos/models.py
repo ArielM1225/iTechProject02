@@ -147,6 +147,7 @@ def ajustar_stock(sender, created, instance, **kwargs):
         historial, _ = HistorialMovimiento.objects.get_or_create(
                 ajuste=instance.ajuste,
                 tipo_movimiento=tipo_movimiento,
+                motivo=instance.ajuste.motivo,
                 defaults={'fecha_movimiento': instance.ajuste.created_at}
             )
             
@@ -185,30 +186,3 @@ class HistorialProductos(models.Model):
             verbose_name_plural = 'Detalle de productos'
     
     
-    
-     
-    #def save(self, *args, **kwargs):
-        # Verificar si hay suficiente stock antes de realizar la salida
-     #   if self.producto.stock < self.cantidad:
-      #      raise ValidationError(f'No hay suficiente stock disponible para el producto {self.producto.nombre_Comercial}. Stock actual: {self.producto.stock}')
-       # if not self.pk: # Si es una nueva salida
-        #    self.producto.stock -= self.cantidad
-
-        #super().save(*args, **kwargs)
-        #self.producto.save()
-
-  #  def delete(self, *args, **kwargs):
-    # No modificar el stock al eliminar
-   #     super().delete(*args, **kwargs)
-
-# def calcular_stock(producto_id):
-#     # Sumar todas las cantidades de entrada del producto
-#     total_entradas = EntradaProducto.objects.filter(producto_id=producto_id).aggregate(total=Sum('cantidad'))['total'] or 0
-
-#     # Sumar todas las cantidades de salida del producto
-#     total_salidas = SalidaProducto.objects.filter(producto_id=producto_id).aggregate(total=Sum('cantidad'))['total'] or 0
-
-#     # Calcular el stock actual
-#     stock_actual = total_entradas - total_salidas
-
-#     return stock_actual
