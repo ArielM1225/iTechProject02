@@ -4,7 +4,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from aplicaciones.Productos.models import Producto, Droga, DrogaProducto
+from aplicaciones.Productos.models import Producto, Droga, DrogaProducto, AccionFarma
 from django.utils.html import format_html
 
 
@@ -34,44 +34,20 @@ class DrogaAdmin(admin.ModelAdmin):
     list_display = ('nombre',)
     search_fields = ('nombre',)
     
+class AccionFarmaAdmin(admin.ModelAdmin):
+    list_display = ('nombre',)
+    search_fields = ('nombre',)
+    
     # def mostrar_stock(self, obj):
     #     return calcular_stock(obj.id_producto) 
 
     # mostrar_stock.short_description = 'Stock Actual'
     
-    def export_selected_to_pdf(modeladmin, request, queryset):
-     
-         response = HttpResponse(content_type='application/pdf')
-         response['Content-Disposition'] = 'attachment; filename="Productos.pdf"'
-
-         p = canvas.Canvas(response, pagesize=(595, 842))  # Tamaño A4
-
-         pdfmetrics.registerFont(TTFont('Arial-Bold', 'arialbd.ttf'))
-         pdfmetrics.registerFont(TTFont('Arial', 'arial.ttf'))
-         
-         p.setFont("Arial-Bold", 12)
-         p.drawString(100, 750, "Listas de pacientes")
-         p.setFont("Arial", 12)
-         y = 720
-         for item in queryset:
-            p.drawString(120, y, f"Producto: {item.id_producto}")
-            p.drawString(120, y - 20, f"Nombre: {item.nombre_Comercial}")
-            p.drawString(120, y - 40, f"Droga: {item.principio_activo}")
-            p.drawString(120, y - 60, f"Presentacion: {item.presentacion}")
-            p.drawString(120, y - 80, f"Accion: {item.accion_farma}")
-            p.drawString(120, y - 80, f"Tipo de producto: {item.tipo_Producto}")
-            p.drawString(120, y - 120, f"Stock: {item.stock}") # Mostrar el stock del producto
-            y -= 120
-         p.showPage()
-         p.save()
-         return response
-
-    export_selected_to_pdf.short_description = "Exportar Movimientos seleccionados a PDF"
-    actions = [export_selected_to_pdf]
     
 
      
 
 admin.site.register(Producto,ProductosAdmin)
 admin.site.register(Droga,DrogaAdmin)
+admin.site.register(AccionFarma, AccionFarmaAdmin)
 

@@ -22,56 +22,24 @@ class EmpleadoAdmin(admin.ModelAdmin):
         ('Permisos', {'fields': ('is_active', 'is_staff',)}),
         ('Fechas Importantes', {'fields': ('last_login', 'date_joined')}),
     )
+    def get_queryset(self, request):
+        # Si el usuario es superuser, puede ver a todos
+        qs = super(EmpleadoAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        # Si no es superuser, solo verá su propio registro
+        return qs.filter(id=request.user.id)
+    
+    # Limitar que el usuario solo pueda editar sus propios datos
+    def has_change_permission(self, request, obj=None):
+        # Si es superuser, puede editar a todos
+        if request.user.is_superuser:
+            return True
+        # Si no es superuser, solo puede editar su propio registro
+        if obj is not None and obj.id != request.user.id:
+            return False
+        return True
 
-    def generate_chart(self, request, queryset):
-        fig, ax = plt.subplots()
-        ax.plot([1, 2, 3], [4, 5, 6])
-        ax.set_title('Ejemplo de gráfico')
-
-        buf = BytesIO()
-        plt.savefig(buf, format='png')
-        buf.seek(0)
-
-        response = HttpResponse(buf.getvalue(), content_type='image/png')
-        response['Content-Disposition'] = 'attachment; filename=chart.png'
-        return response
-
-    generate_chart.short_description = "Generar gráfico"
-
-    def export_selected_to_pdf(self, request, queryset):
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="Empleados.pdf"'
-
-        p = canvas.Canvas(response, pagesize=letter)
-
-        pdfmetrics.registerFont(TTFont('Arial-Bold', 'arialbd.ttf'))
-        pdfmetrics.registerFont(TTFont('Arial', 'arial.ttf'))
-        
-        p.setFont("Arial-Bold", 12)
-        p.drawString(100, 750, "Lista de empleados")
-        p.setFont("Arial", 12)
-        y = 720
-        for item in queryset:
-            p.drawString(120, y, f"Empleado: {item.id_Empleado}")
-            p.drawString(120, y - 20, f"Nombre: {item.first_name}")
-            p.drawString(120, y - 40, f"Apellido: {item.last_name}")
-            p.drawString(120, y - 60, f"Dni: {item.dni}")
-            p.drawString(120, y - 80, f"Trabajo: {item.trabajo}")
-            y -= 120
-        p.showPage()
-        p.save()
-        return response
-
-    export_selected_to_pdf.short_description = "Exportar Empleados seleccionados a PDF"
-
-    actions = [generate_chart, export_selected_to_pdf]
-
-    def calcularEdad(self, obj):
-        today = date.today()
-        age = today.year - obj.nacimiento.year - ((today.month, today.day) < (obj.nacimiento.month, obj.nacimiento.day))
-        return age
-
-    calcularEdad.short_description = 'Edad'
 
     list_filter = (
         'first_name',
@@ -126,33 +94,7 @@ class PacienteAdmin (admin.ModelAdmin):
         'apellido',
         'dni'
     )
-    
-    def export_selected_to_pdf(modeladmin, request, queryset):
-     
-         response = HttpResponse(content_type='application/pdf')
-         response['Content-Disposition'] = 'attachment; filename="Pacientes.pdf"'
 
-         p = canvas.Canvas(response, pagesize=(595, 842))  # Tamaño A4
-
-         pdfmetrics.registerFont(TTFont('Arial-Bold', 'arialbd.ttf'))
-         pdfmetrics.registerFont(TTFont('Arial', 'arial.ttf'))
-         
-         p.setFont("Arial-Bold", 12)
-         p.drawString(100, 750, "Listas de pacientes")
-         p.setFont("Arial", 12)
-         y = 720
-         for item in queryset:
-            p.drawString(120, y, f"Paciente: {item.id_Paciente}")
-            p.drawString(120, y - 20, f"Nombre: {item.nombre}")
-            p.drawString(120, y - 40, f"Apellido: {item.apellido}")
-            p.drawString(120, y - 60, f"Dni: {item.dni}")
-            y -= 120
-         p.showPage()
-         p.save()
-         return response
-
-    export_selected_to_pdf.short_description = "Exportar Pacientes seleccionados a PDF"
-    actions = [export_selected_to_pdf]
 
 class ContactoAdmin(admin.ModelAdmin):
     fieldsets = (

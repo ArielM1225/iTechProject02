@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.http import HttpRequest
 from aplicaciones.Movimientos.models import Entrada, Salida, SalidaProducto, EntradaProducto, AjusteProducto,AjusteStock, HistorialMovimiento,HistorialProductos
+from aplicaciones.Productos.models import Producto
 
 class EntradaProductoInline(admin.TabularInline):
     model = EntradaProducto
@@ -26,6 +27,13 @@ class SalidaProductoInline(admin.TabularInline):
     def has_delete_permission(self, request, obj=None):
         # Desactivar la opción de eliminar
         return False
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "producto":
+            if request.user.trabajo == 'doctor':
+                # Excluir medicamentos de tipo "bajo receta duplicada"
+                kwargs["queryset"] = Producto.objects.exclude(tipo_Producto='bajo receta duplicada')
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
     
     
 class EntradaAdmin (admin.ModelAdmin):
@@ -63,6 +71,17 @@ class SalidaAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         # Desactivar la opción de eliminar
         return False
+    
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        
+        # Si el usuario es un doctor, excluye los medicamentos bajo receta duplicada
+        if request.user.trabajo == 'doctor':
+            return qs.exclude(productos__tipo_Producto='bajo receta duplicada')
+        
+        return qs
+    
+   
     
     
     

@@ -8,10 +8,9 @@ from django.contrib.auth.hashers import make_password
 
 class Empleado(AbstractUser):
     JOB_CHOICES = (
-        ('auxiliar', 'Auxiliar'), 
+        ('psiquiatra', 'Psiquiatra'), 
         ('administrativo', 'Administrativo'),
-        ('farmacéutico', 'Farmacéutico'),
-        ('médico', 'Médico'),
+        ('doctor', 'Doctor'),
     )
 
     dni = models.IntegerField('Dni', unique=True, null=True, blank=True)
@@ -39,14 +38,12 @@ def asignar_grupo_por_puesto(sender, instance, **kwargs):
     instance.groups.clear()
 
     # Asignar grupo según el puesto
-    if instance.trabajo == 'auxiliar':
-        grupo = Group.objects.get(name='Auxiliar')
+    if instance.trabajo == 'psiquiatra':
+        grupo = Group.objects.get(name='Psiquiatra')
     elif instance.trabajo == 'administrativo':
         grupo = Group.objects.get(name='Administrativo')
-    elif instance.trabajo == 'farmacéutico':
-        grupo = Group.objects.get(name='Farmacéutico')
-    elif instance.trabajo == 'médico':
-        grupo = Group.objects.get(name='Médico')
+    elif instance.trabajo == 'doctor':
+        grupo = Group.objects.get(name='Doctor')
     else:
         grupo = None
     
@@ -90,7 +87,7 @@ class Proveedor (models.Model):
     id_Proveedor = models.AutoField(primary_key=True)
     nombre= models.CharField ('Nombre',max_length=17)   
     r_Social = models.CharField('Razón Social', max_length=50, choices=RAZON_SOCIAL_CHOICES)
-    id_Contacto = models.ForeignKey('Comunidad.contacto', on_delete=models.PROTECT, verbose_name= 'Información de contacto')
+    id_Contacto = models.ForeignKey('Comunidad.contacto', on_delete=models.PROTECT, verbose_name= 'Información de contacto', blank=True, null=True)
     
     class Meta:
         verbose_name= 'Proveedor'
@@ -122,15 +119,15 @@ class contacto (models.Model):
         ('Medico', 'Medico'),
     )
     id_Contacto=models.AutoField(primary_key=True)
-    numero_Telefono=models.IntegerField ('Número telefónico',null=True)
+    numero_Telefono=models.IntegerField ('Número telefónico',null=True, blank=True)
     numero_Opcional= models.IntegerField ('Numero alternativo',null=True, blank= True)
-    email = models.CharField('Correo electrónico',max_length=50,)
-    calle=models.CharField ('Calle',max_length=50)
-    número=models.IntegerField ('Numero')
+    email = models.CharField('Correo electrónico',max_length=50, blank=True, null=True)
+    calle=models.CharField ('Calle',max_length=50, blank=True, null=True)
+    número=models.IntegerField ('Numero', blank=True, null=True)
     piso=models.IntegerField ('N° Piso',null=True, blank=True)
     departamento=models.CharField ('Departamento',max_length=50,null=True, blank=True)
-    localidad=models.ForeignKey('Comunidad.localidad',null=True, on_delete=models.PROTECT)
-    código_Postal=models.IntegerField ('Codigo Postal',null=True)
+    localidad=models.ForeignKey('Comunidad.localidad',null=True, on_delete=models.PROTECT, blank=True)
+    código_Postal=models.IntegerField ('Codigo Postal',null=True, blank=True)
     def __str__(self):
         return self.email + ' - ' + f"{self.numero_Telefono}"
 
