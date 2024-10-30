@@ -30,7 +30,7 @@ class SalidaProductoInline(admin.TabularInline):
     
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "producto":
-            if request.user.trabajo == 'doctor':
+            if not request.user.trabajo.producto_Psiquiatrico:
                 # Excluir medicamentos de tipo "bajo receta duplicada"
                 kwargs["queryset"] = Producto.objects.exclude(tipo_Producto='bajo receta duplicada')
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
@@ -75,9 +75,9 @@ class SalidaAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         
-        # Si el usuario es un doctor, excluye los medicamentos bajo receta duplicada
-        if request.user.trabajo == 'doctor':
-            return qs.exclude(productos__tipo_Producto='bajo receta duplicada')
+        # Si el usuario no tiene acceso a productos psiquiátricos, excluye los medicamentos bajo receta duplicada
+        if not request.user.trabajo.producto_Psiquiatrico:
+                return qs.exclude(productos__tipo_Producto='bajo receta duplicada')
         
         return qs
     

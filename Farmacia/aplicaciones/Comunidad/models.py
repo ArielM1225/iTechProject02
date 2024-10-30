@@ -6,15 +6,17 @@ from django.dispatch import receiver
 from django.contrib.auth.hashers import make_password
 
 
-class Empleado(AbstractUser):
-    JOB_CHOICES = (
-        ('psiquiatra', 'Psiquiatra'), 
-        ('administrativo', 'Administrativo'),
-        ('doctor', 'Doctor'),
-    )
+class Puesto(models.Model):
+    id_Puesto = models.AutoField(primary_key=True)
+    puesto_Nombre = models.CharField('Puesto', max_length=50, null=None, blank=None)
+    producto_Psiquiatrico = models.BooleanField('Acceso a productos psiquiátricos', default=False)
 
+    def __str__(self):
+        return self.puesto_Nombre
+    
+class Empleado(AbstractUser):
     dni = models.IntegerField('Dni', unique=True, null=True, blank=True)
-    trabajo = models.CharField('Puesto', max_length=20, choices=JOB_CHOICES)
+    trabajo = models.ForeignKey(Puesto, on_delete=models.PROTECT, verbose_name='Puesto', null=True, blank=True)
     nacimiento = models.DateField('Nacimiento', default=date.today)
     id_Contacto = models.ForeignKey('Comunidad.contacto', null=True, blank=True, on_delete=models.PROTECT)
     
@@ -28,27 +30,27 @@ class Empleado(AbstractUser):
     def __str__(self):
         return f'{self.last_name} - {self.first_name}'
     
-@receiver(post_save, sender=Empleado)
-def asignar_grupo_por_puesto(sender, instance, **kwargs):
-    """
-    Asigna el grupo de permisos al empleado basado en su puesto,
-    tanto en la creación como en la edición.
-    """
-    # Eliminar cualquier grupo previo
-    instance.groups.clear()
+# @receiver(post_save, sender=Empleado)
+# def asignar_grupo_por_puesto(sender, instance, **kwargs):
+#     """
+#     Asigna el grupo de permisos al empleado basado en su puesto,
+#     tanto en la creación como en la edición.
+#     """
+#     # Eliminar cualquier grupo previo
+#     instance.groups.clear()
 
-    # Asignar grupo según el puesto
-    if instance.trabajo == 'psiquiatra':
-        grupo = Group.objects.get(name='Psiquiatra')
-    elif instance.trabajo == 'administrativo':
-        grupo = Group.objects.get(name='Administrativo')
-    elif instance.trabajo == 'doctor':
-        grupo = Group.objects.get(name='Doctor')
-    else:
-        grupo = None
+#     # Asignar grupo según el puesto
+#     if instance.trabajo == 'psiquiatra':
+#         grupo = Group.objects.get(name='Psiquiatra')
+#     elif instance.trabajo == 'administrativo':
+#         grupo = Group.objects.get(name='Administrativo')
+#     elif instance.trabajo == 'doctor':
+#         grupo = Group.objects.get(name='Doctor')
+#     else:
+#         grupo = None
     
-    if grupo:
-        instance.groups.add(grupo)
+#     if grupo:
+#         instance.groups.add(grupo)
     
 @receiver(pre_save, sender=Empleado)
 def encriptar_contrasena(sender, instance, **kwargs):

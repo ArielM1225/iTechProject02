@@ -8,7 +8,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 from django.http import HttpResponse
 from datetime import date
-from aplicaciones.Comunidad.models import Empleado,Proveedor,Paciente,contacto,Laboratorio, provincia, localidad
+from aplicaciones.Comunidad.models import Empleado,Proveedor,Paciente,contacto,Laboratorio, provincia, localidad, Puesto
 
 
 
@@ -19,7 +19,7 @@ class EmpleadoAdmin(admin.ModelAdmin):
         (None, {'fields': ('username', 'password')}),
         ('Información Personal', {'fields': ('first_name', 'last_name', 'email', 'dni', 'trabajo')}),
         ('Contacto', {'fields': ('id_Contacto',)}),
-        ('Permisos', {'fields': ('is_active', 'is_staff',)}),
+        ('Permisos', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups')}),
         ('Fechas Importantes', {'fields': ('last_login', 'date_joined')}),
     )
     def get_queryset(self, request):
@@ -54,6 +54,11 @@ class EmpleadoAdmin(admin.ModelAdmin):
         'dni'
     )
 
+class PuestoAdmin (admin.ModelAdmin):
+    list_display=(
+        'puesto_Nombre',
+        'producto_Psiquiatrico',
+    )
     
 class ProveedorAdmin (admin.ModelAdmin):
     list_display=(
@@ -131,6 +136,7 @@ class LocalidadesAdmin (admin.ModelAdmin):
     
     
 admin.site.register(Empleado,EmpleadoAdmin)
+admin.site.register(Puesto, PuestoAdmin)
 admin.site.register(Proveedor,ProveedorAdmin)
 admin.site.register(Paciente,PacienteAdmin)
 admin.site.register(Laboratorio,LaboratorioAdmin)
