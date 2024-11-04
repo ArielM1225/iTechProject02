@@ -110,8 +110,3 @@ class AccionFarma(models.Model):
     class Meta:
         verbose_name= 'Acción Farmacológica'
         verbose_name_plural= 'Acción Farmacológica'
-
-    
-    
-
-

@@ -33,7 +33,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'aplicaciones.Comunidad',
     'aplicaciones.Productos',
-    'aplicaciones.Movimientos'
+    'aplicaciones.Movimientos',
+    'import_export',
 ]
 
 
@@ -71,6 +72,12 @@ JAZZMIN_SETTINGS = {
         "Productos.Droga": "fas fa-pills",
       
     },
+    "hide_models": [
+        "productos.AccionFarma",
+        "comunidad.Puesto",
+        "comunidad.contacto",
+        "comunidad.Provincia",
+    ],
 }
 
 JAZZMIN_UI_TWEAKS = {

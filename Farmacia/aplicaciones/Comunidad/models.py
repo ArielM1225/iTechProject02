@@ -131,7 +131,8 @@ class contacto (models.Model):
     localidad=models.ForeignKey('Comunidad.localidad',null=True, on_delete=models.PROTECT, blank=True)
     código_Postal=models.IntegerField ('Codigo Postal',null=True, blank=True)
     def __str__(self):
-        return self.email + ' - ' + f"{self.numero_Telefono}"
+        return f"{self.email or 'Sin email'} - {self.numero_Telefono or 'Sin teléfono'}"
+
 
 class provincia (models.Model):
     id_Provincia=models.AutoField(primary_key=True)
