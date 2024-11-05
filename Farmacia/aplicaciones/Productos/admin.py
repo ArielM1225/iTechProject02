@@ -1,6 +1,6 @@
 from django.contrib import admin
 from import_export import resources
-from import_export.admin import ImportExportModelAdmin
+from import_export.admin import ExportMixin
 from aplicaciones.Productos.models import Producto, Droga, DrogaProducto, AccionFarma
 
 class DrogaProductoInline(admin.TabularInline):
@@ -11,7 +11,7 @@ class ProductoResource(resources.ModelResource):
     class Meta:
         model = Producto
 
-class ProductosAdmin(ImportExportModelAdmin):  # Cambiamos a ImportExportModelAdmin
+class ProductosAdmin(ExportMixin, admin.ModelAdmin):  # Cambiamos a ExportMixin
     resource_class = ProductoResource  # Añadimos la clase de recursos
     inlines = [DrogaProductoInline]
     exclude = ('stock',)
@@ -28,11 +28,11 @@ class ProductosAdmin(ImportExportModelAdmin):  # Cambiamos a ImportExportModelAd
         'tipo_Producto'
     ) 
 
-class DrogaAdmin(ImportExportModelAdmin):  # Cambiamos a ImportExportModelAdmin
+class DrogaAdmin(ExportMixin, admin.ModelAdmin):  # Cambiamos a ExportMixin
     list_display = ('nombre',)
     search_fields = ('nombre',)
     
-class AccionFarmaAdmin(ImportExportModelAdmin):  # Cambiamos a ImportExportModelAdmin
+class AccionFarmaAdmin(ExportMixin, admin.ModelAdmin):  # Cambiamos a Exportmixin
     list_display = ('nombre',)
     search_fields = ('nombre',)
 

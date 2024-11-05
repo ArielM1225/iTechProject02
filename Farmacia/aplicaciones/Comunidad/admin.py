@@ -1,7 +1,7 @@
 from django.contrib import admin
 from import_export import resources, fields
 from import_export.widgets import ForeignKeyWidget
-from import_export.admin import ImportExportModelAdmin
+from import_export.admin import ExportMixin
 from aplicaciones.Comunidad.models import Empleado, Proveedor, Paciente, contacto, Laboratorio, provincia, localidad, Puesto
 
 
@@ -48,7 +48,7 @@ class EmpleadoResource(resources.ModelResource):
         )
 
 
-class EmpleadoAdmin(ImportExportModelAdmin):
+class EmpleadoAdmin(ExportMixin, admin.ModelAdmin):
     resource_class = EmpleadoResource
     list_display = ('username', 'email', 'dni', 'first_name', 'last_name', 'trabajo', 'is_active')
     fieldsets = (
@@ -89,7 +89,7 @@ class ProveedorResource(resources.ModelResource):
         model = Proveedor
 
 
-class ProveedorAdmin(ImportExportModelAdmin):
+class ProveedorAdmin(admin.ModelAdmin):
     resource_class = ProveedorResource
     list_display = ('nombre',)
     list_filter = ('nombre',)
@@ -100,7 +100,7 @@ class PacienteResource(resources.ModelResource):
         model = Paciente
 
 
-class PacienteAdmin(ImportExportModelAdmin):
+class PacienteAdmin(ExportMixin, admin.ModelAdmin):
     resource_class = PacienteResource
     list_display = ('nombre', 'apellido', 'dni')
     list_filter = ('nombre', 'apellido')
