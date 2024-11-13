@@ -9,7 +9,7 @@ from django.contrib.auth.hashers import make_password
 class Puesto(models.Model):
     id_Puesto = models.AutoField(primary_key=True)
     puesto_Nombre = models.CharField('Puesto', max_length=50, null=None, blank=None)
-    producto_Psiquiatrico = models.BooleanField('Acceso a productos psiquiátricos', default=False)
+    producto_Psiquiatrico = models.BooleanField('Acceso Psiquiátrico', default=False)
 
     def __str__(self):
         return self.puesto_Nombre
@@ -18,7 +18,7 @@ class Empleado(AbstractUser):
     dni = models.IntegerField('Dni', unique=True, null=True, blank=True)
     trabajo = models.ForeignKey(Puesto, on_delete=models.PROTECT, verbose_name='Puesto', null=True, blank=True)
     nacimiento = models.DateField('Nacimiento', default=date.today)
-    id_Contacto = models.ForeignKey('Comunidad.contacto', null=True, blank=True, on_delete=models.PROTECT)
+    id_Contacto = models.ForeignKey('Comunidad.contacto', null=True, blank=True, on_delete=models.PROTECT, verbose_name='Contacto')
     
     class Meta:
         verbose_name = 'Empleado'
