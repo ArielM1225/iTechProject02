@@ -21,6 +21,10 @@ class EntradaProducto(models.Model):
     producto = models.ForeignKey('Productos.Producto', on_delete=models.PROTECT, blank=True, null=True)
     fecha_Caducidad = models.DateField('Fecha de caducidad')
     cantidad = models.PositiveIntegerField()
+    
+    class Meta:
+        verbose_name = 'Detalle de productos'
+        verbose_name_plural = 'Detalles de productos'
 
 @receiver(post_save, sender=EntradaProducto)
 def adjust_stock(sender, created, instance, **kwargs):
@@ -63,6 +67,10 @@ class SalidaProducto(models.Model):
     salida = models.ForeignKey(Salida, on_delete=models.PROTECT, blank=True, null=True)
     producto = models.ForeignKey('Productos.Producto', on_delete=models.PROTECT, blank=True, null=True)
     cantidad = models.PositiveIntegerField()
+    
+    class Meta:
+        verbose_name = 'Detalle de productos'
+        verbose_name_plural = 'Detalles de productos'
  
 @receiver(post_save, sender=SalidaProducto)
 def adjust_stock(sender, created, instance, **kwargs):
@@ -123,6 +131,10 @@ class AjusteProducto(models.Model):
     
     def __str__(self):
         return f'Ajuste: {self.ajuste} - Producto: {self.producto}'
+    
+    class Meta:
+        verbose_name = 'Detalle de productos'
+        verbose_name_plural = 'Detalles de productos'
     
 
     

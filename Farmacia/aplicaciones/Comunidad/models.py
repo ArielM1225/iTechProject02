@@ -72,8 +72,7 @@ class Paciente (models.Model):
         unique_together=('nombre','apellido','dni')
     
     def __str__(self):
-        return self.nombre + '  ' + self.apellido 
-    
+        return self.nombre + ' ' + self.apellido + ' ' + self.dni    
 class Proveedor (models.Model): 
     
     RAZON_SOCIAL_CHOICES = [
@@ -139,6 +138,10 @@ class provincia (models.Model):
     nombre = models.CharField(max_length=100)
     def __str__(self):
         return self.nombre
+    
+    class Meta:
+        verbose_name = 'Provincia'
+        verbose_name_plural = 'Provincias'
 
 class localidad (models.Model):
     id_Localidad=models.AutoField(primary_key=True)
