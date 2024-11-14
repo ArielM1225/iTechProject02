@@ -18,7 +18,7 @@ class Empleado(AbstractUser):
     dni = models.IntegerField('Dni', unique=True, null=True, blank=True)
     trabajo = models.ForeignKey(Puesto, on_delete=models.PROTECT, verbose_name='Puesto', null=True, blank=True)
     nacimiento = models.DateField('Nacimiento', default=date.today)
-    id_Contacto = models.ForeignKey('Comunidad.contacto', null=True, blank=True, on_delete=models.PROTECT, verbose_name='Contacto')
+    id_Contacto = models.ForeignKey('Comunidad.contacto', null=True, blank=True, on_delete=models.PROTECT, verbose_name='Información de contacto')
     
     class Meta:
         verbose_name = 'Empleado'
@@ -72,7 +72,9 @@ class Paciente (models.Model):
         unique_together=('nombre','apellido','dni')
     
     def __str__(self):
-        return self.nombre + ' ' + self.apellido + ' ' + self.dni    
+        return self.nombre + ' ' + self.apellido + ' - ' + str(self.dni)
+
+    
 class Proveedor (models.Model): 
     
     RAZON_SOCIAL_CHOICES = [
@@ -146,7 +148,7 @@ class provincia (models.Model):
 class localidad (models.Model):
     id_Localidad=models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
-    Id_provincia= models.ForeignKey('Comunidad.provincia',null=True,blank=True, on_delete=models.PROTECT)
+    Id_provincia= models.ForeignKey('Comunidad.provincia',null=True,blank=True, on_delete=models.PROTECT, verbose_name='Provincia')
     def __str__(self):
         return f"{self.nombre}, {self.Id_provincia.nombre if self.Id_provincia else 'Provincia no asignada'}"
 
