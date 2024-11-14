@@ -106,7 +106,7 @@ class SalidaAdmin(ExportMixin, admin.ModelAdmin):
     resource_class = SalidaResource
     inlines = [SalidaProductoInline]
     list_display = ('id_Paciente', 'id_Salida', 'created_at', 'entregado',)
-    list_filter = ('entregado', 'created_at')
+    list_filter = ('entregado', 'created_at', 'id_Paciente')
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
@@ -175,7 +175,6 @@ class HistorialMovimientoAdmin(ExportMixin, admin.ModelAdmin):
     inlines = [HistorialProductosInline]
     list_display = ('tipo_movimiento', 'fecha_movimiento', 'motivo')
     list_filter = ('tipo_movimiento', 'fecha_movimiento')
-    search_fields = ('producto__nombre_Comercial', 'motivo')
     date_hierarchy = 'fecha_movimiento'
 
     def has_delete_permission(self, request, obj=None):

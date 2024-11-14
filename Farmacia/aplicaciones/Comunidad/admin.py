@@ -80,7 +80,7 @@ class EmpleadoAdmin(ExportMixin, admin.ModelAdmin):
         return False
 
     list_filter = ('first_name', 'last_name', 'trabajo')
-    search_fields = ('first_name', 'last_name', 'trabajo', 'dni')
+    search_fields = ('first_name', 'last_name','dni')
 
 
 # Configuración de import-export para otros modelos

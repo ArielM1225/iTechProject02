@@ -25,7 +25,8 @@ class ProductosAdmin(ExportMixin, admin.ModelAdmin):  # Cambiamos a ExportMixin
     list_filter = (
         'nombre_Comercial',
         'principio_activo',
-        'tipo_Producto'
+        'tipo_Producto',
+        'id_Laboratorio'
     ) 
 
 class DrogaAdmin(ExportMixin, admin.ModelAdmin):  # Cambiamos a ExportMixin
